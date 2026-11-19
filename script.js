@@ -4,9 +4,7 @@ const CORREO    = "tavozick@gmail.com";
 const MAPA_COORD = "19.4603444,-99.2137661";                  // Ubicación de LUSALEN
 const MAPA_LINK  = "https://maps.app.goo.gl/992vJwcLoeVKERMy5"; // Enlace de Google Maps
 const DIRECCION  = "Ingenieros Militares 70, Argentina Poniente, Miguel Hidalgo, 11230 Ciudad de México";
-// Envío silencioso del formulario al WhatsApp del dueño (servicio CallMeBot).
-// Pega aquí la apikey que te envía CallMeBot (ver instrucciones). Si queda vacía, se abre WhatsApp como respaldo.
-const CALLMEBOT_KEY = "";
+// El formulario de Contacto se envía a /api/contacto (función privada de Vercel; ver LEEME_VERCEL.txt)
 
 // ====== PRODUCTOS: [imagen (carpeta /images), nombre, categoría, PRECIO] ======
 // Los precios son de ejemplo: cámbialos por los reales.
@@ -451,14 +449,10 @@ $("catalogo").addEventListener("keydown", e => {
         if (d.msg.length < 5) malos.push("cf-msg");
         if (malos.length) { malos.forEach(id => $(id).classList.add("mal")); $(malos[0]).focus(); return ver("Revisa los campos marcados: todos son obligatorios.", false); }
         try { const u = Number(localStorage.getItem("ultimoMensaje") || 0); if (Date.now() - u < 45000) return ver("Ya enviaste un mensaje hace un momento. Espera unos segundos e inténtalo de nuevo.", false); } catch (_) {}
-        const texto = `*Nuevo mensaje desde la página web*\nNombre: ${d.nombre}\nTeléfono: ${d.tel}\nCorreo: ${d.mail}\nNos conoció por: ${d.medio}\nMensaje: ${d.msg}`;
-        btn.disabled = true; btn.classList.add("cargando"); btn.firstElementChild.textContent = "Enviando…";
+                btn.disabled = true; btn.classList.add("cargando"); btn.firstElementChild.textContent = "Enviando…";
         try {
-            if (CALLMEBOT_KEY) {
-                await fetch(`https://api.callmebot.com/whatsapp.php?phone=${WHATSAPP}&text=${encodeURIComponent(texto)}&apikey=${encodeURIComponent(CALLMEBOT_KEY)}`, { mode: "no-cors" });
-            } else {
-                window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`, "_blank", "noopener");   // respaldo hasta configurar la apikey
-            }
+            const r = await fetch("/api/contacto", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
+            if (!r.ok) throw new Error("envio");
             try { localStorage.setItem("ultimoMensaje", String(Date.now())); } catch (_) {}
             f.reset(); ver("¡Mensaje enviado correctamente! Gracias por escribirnos, nos pondremos en contacto contigo muy pronto.", true);
         } catch (err) {
