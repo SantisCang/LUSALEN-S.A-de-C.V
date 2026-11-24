@@ -513,3 +513,41 @@ async function enviarAPI(asunto, nombre, mail, tel, mensaje) {
         b.disabled = false; b.textContent = "Enviar a correo";
     });
 })();
+
+
+/* ---------- Contacto: enviar el mensaje por WhatsApp ---------- */
+(function () {
+    const b = $("cf-wa"); if (!b) return;
+    b.addEventListener("click", () => {
+        const d = { nombre: $("cf-nombre").value.trim(), tel: $("cf-tel").value.trim(), mail: $("cf-mail").value.trim(), medio: $("cf-medio").value, msg: $("cf-msg").value.trim() };
+        ["cf-nombre", "cf-tel", "cf-mail", "cf-medio", "cf-msg"].forEach(id => $(id).classList.remove("mal"));
+        const malos = [];
+        if (d.nombre.length < 3) malos.push("cf-nombre");
+        if (d.tel.replace(/\D/g, "").length < 10) malos.push("cf-tel");
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.mail)) malos.push("cf-mail");
+        if (!d.medio) malos.push("cf-medio");
+        if (d.msg.length < 5) malos.push("cf-msg");
+        const est = $("cf-estado");
+        if (malos.length) { malos.forEach(id => $(id).classList.add("mal")); $(malos[0]).focus(); est.textContent = "Revisa los campos marcados: todos son obligatorios."; est.className = "cf-estado ver err"; return; }
+        const t = `Hola, quiero ponerme en contacto con LUSALEN.\nNombre: ${d.nombre}\nTeléfono: ${d.tel}\nCorreo: ${d.mail}\nNos conoció por: ${d.medio}\n\n${d.msg}`;
+        window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(t)}`, "_blank");
+        toast("✓ Abriendo WhatsApp con tu mensaje…");
+    });
+})();
+
+/* ---------- Deslizar con el dedo para pasar entre apartados (celular) ---------- */
+(function () {
+    let x0 = null, y0 = 0, ok = false;
+    const NO = "input, textarea, select, iframe, .tabs, .qres, .dt-panel, #carrusel";
+    document.addEventListener("touchstart", e => {
+        ok = !document.body.classList.contains("sin-scroll") && !e.target.closest(NO);
+        x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener("touchend", e => {
+        if (x0 === null || !ok) { x0 = null; return; }
+        const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+        if (Math.abs(dx) < 80 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+        const i = VISTAS.indexOf(document.body.dataset.vista || "inicio") + (dx < 0 ? 1 : -1);
+        if (i >= 0 && i < VISTAS.length) location.hash = "#" + VISTAS[i];
+    }, { passive: true });
+})();

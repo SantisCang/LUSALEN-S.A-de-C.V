@@ -433,3 +433,5 @@ button.btn:disabled { opacity: .6; cursor: wait; }
 #cot-estado { margin: 10px 0 0; }
 
 .carrusel { touch-action: pan-y; }
+
+.cf-wa { background: linear-gradient(135deg, #25d366, #128c7e) !important; margin-top: -4px; }
