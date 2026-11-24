@@ -263,7 +263,7 @@ function actualizarEnlaces() {
 /* ---------- Contacto: mapa de Google Maps ---------- */
 function cargarMapa() {
     const f = $("mapa");
-    if (!f.src) f.src = `https://www.google.com/maps?q=${encodeURIComponent(DIRECCION)}&z=16&output=embed`;
+    if (!f.src) f.src = `https://www.google.com/maps?q=${MAPA_COORD}&z=18&output=embed`;
     $("verMapa").href = MAPA_LINK;
 }
 
