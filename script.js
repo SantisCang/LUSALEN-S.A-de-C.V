@@ -1,7 +1,7 @@
 // ====== CONFIGURA AQUÍ TUS DATOS ======
 const WHATSAPP  = "525522150137";   // Número con lada del país (52 = México)
 const CORREO    = "tavozick@gmail.com";
-const WEB3FORMS_KEY = "bd93021b-196c-4870-a6b1-051480962800";   // Clave gratis de web3forms.com (te llega a tu correo)
+const WEB3FORMS_KEY = "PEGA_AQUI_TU_CLAVE";   // Clave gratis de web3forms.com (te llega a tu correo)
 const MAPA_COORD = "19.4603444,-99.2137661";                  // Ubicación de LUSALEN
 const MAPA_LINK  = "https://maps.app.goo.gl/992vJwcLoeVKERMy5"; // Enlace de Google Maps
 const DIRECCION  = "Ingenieros Militares 70, Argentina Poniente, Miguel Hidalgo, 11230 Ciudad de México";
@@ -155,6 +155,16 @@ function iniciarCarrusel() {
 function detenerCarrusel() { clearInterval(reloj); reloj = null; }
 $("next").addEventListener("click", () => { irSlide(slide + 1); iniciarCarrusel(); });
 $("prev").addEventListener("click", () => { irSlide(slide - 1); iniciarCarrusel(); });
+/* Deslizar con el dedo (celular) para cambiar de ventana en Inicio */
+(function () {
+    const c = $("carrusel"); let x0 = null, y0 = 0;
+    c.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    c.addEventListener("touchend", e => {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) { irSlide(slide + (dx < 0 ? 1 : -1)); iniciarCarrusel(); }
+    }, { passive: true });
+})();
 $("dots").addEventListener("click", e => { if (e.target.dataset.i !== undefined) { irSlide(Number(e.target.dataset.i)); iniciarCarrusel(); } });
 
 /* ---------- Productos separados por categoría ---------- */
@@ -247,7 +257,6 @@ function textoCotizacion() {
 function actualizarEnlaces() {
     const t = encodeURIComponent(textoCotizacion());
     $("wa").href = `https://wa.me/${WHATSAPP}?text=${t}`;
-    $("em").href = `mailto:${CORREO}?subject=${encodeURIComponent("Solicitud de cotización")}&body=${t}`;
 }
 ["nom", "tel", "mail", "msg"].forEach(id => $(id).addEventListener("input", actualizarEnlaces));
 
@@ -282,7 +291,6 @@ function toast(msg) {
     toastTimer = setTimeout(() => t.classList.remove("ver"), 2200);
 }
 $("wa").addEventListener("click", () => toast("✓ Abriendo WhatsApp con tu cotización…"));
-$("em").addEventListener("click", () => toast("✓ Abriendo tu correo con la cotización…"));
 
 
 /* ---------- Detalle del producto (ventana animada) ---------- */
@@ -502,6 +510,6 @@ async function enviarAPI(asunto, nombre, mail, tel, mensaje) {
         } catch (err) {
             ver("No pudimos enviar tu solicitud. Usa los botones de WhatsApp o correo, o llámanos al 55 2215 0137.", false);
         }
-        b.disabled = false; b.textContent = "Enviar cotización";
+        b.disabled = false; b.textContent = "Enviar a correo";
     });
 })();
