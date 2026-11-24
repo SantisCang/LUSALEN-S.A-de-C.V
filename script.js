@@ -1,10 +1,11 @@
 // ====== CONFIGURA AQUÍ TUS DATOS ======
 const WHATSAPP  = "525522150137";   // Número con lada del país (52 = México)
 const CORREO    = "tavozick@gmail.com";
+const WEB3FORMS_KEY = "bd93021b-196c-4870-a6b1-051480962800";   // Clave gratis de web3forms.com (te llega a tu correo)
 const MAPA_COORD = "19.4603444,-99.2137661";                  // Ubicación de LUSALEN
 const MAPA_LINK  = "https://maps.app.goo.gl/992vJwcLoeVKERMy5"; // Enlace de Google Maps
 const DIRECCION  = "Ingenieros Militares 70, Argentina Poniente, Miguel Hidalgo, 11230 Ciudad de México";
-// El formulario de Contacto se envía a /api/contacto (función privada de Vercel; ver LEEME_VERCEL.txt)
+// Contacto y cotizaciones se envían por Web3Forms a tu correo (ver LEEME.txt)
 
 // ====== PRODUCTOS: [imagen (carpeta /images), nombre, categoría, PRECIO] ======
 // Los precios son de ejemplo: cámbialos por los reales.
@@ -431,6 +432,18 @@ $("catalogo").addEventListener("keydown", e => {
     if (cards[j]) { cards[j].focus(); cards[j].scrollIntoView({ block: "center", behavior: "smooth" }); }
 });
 
+
+/* ---------- Envío por API (Web3Forms) a tu correo ---------- */
+async function enviarAPI(asunto, nombre, mail, tel, mensaje) {
+    const r = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: asunto, from_name: "LUSALEN Web", name: nombre, email: mail, phone: tel, message: mensaje })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.success) throw new Error("envio");
+}
+
 /* ---------- Contacto: formulario de mensaje directo ---------- */
 (function () {
     const f = $("formContacto"); if (!f) return;
@@ -451,8 +464,7 @@ $("catalogo").addEventListener("keydown", e => {
         try { const u = Number(localStorage.getItem("ultimoMensaje") || 0); if (Date.now() - u < 45000) return ver("Ya enviaste un mensaje hace un momento. Espera unos segundos e inténtalo de nuevo.", false); } catch (_) {}
                 btn.disabled = true; btn.classList.add("cargando"); btn.firstElementChild.textContent = "Enviando…";
         try {
-            const r = await fetch("/api/contacto", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
-            if (!r.ok) throw new Error("envio");
+            await enviarAPI("Nuevo mensaje desde la página web", d.nombre, d.mail, d.tel, "Nos conoció por: " + d.medio + "\n\n" + d.msg);
             try { localStorage.setItem("ultimoMensaje", String(Date.now())); } catch (_) {}
             f.reset(); ver("¡Mensaje enviado correctamente! Gracias por escribirnos, nos pondremos en contacto contigo muy pronto.", true);
         } catch (err) {
@@ -461,4 +473,35 @@ $("catalogo").addEventListener("keydown", e => {
         btn.disabled = false; btn.classList.remove("cargando"); btn.firstElementChild.textContent = "Enviar mensaje";
     });
     f.addEventListener("input", e => e.target.classList.remove("mal"));
+})();
+
+
+/* ---------- Cotización / pedido: envío automático por API (correo, Web3Forms) ---------- */
+(function () {
+    const b = $("enviarCot"), est = $("cot-estado"); if (!b) return;
+    const ver = (t, ok) => { est.textContent = t; est.className = "cf-estado ver " + (ok ? "ok" : "err"); };
+    b.addEventListener("click", async () => {
+        const ids = Object.keys(carrito);
+        const d = { tipo: "pedido", nombre: $("nom").value.trim(), tel: $("tel").value.trim(), mail: $("mail").value.trim(), msg: $("msg").value.trim(),
+            items: ids.map(i => ({ c: carrito[i], n: PRODUCTOS[i].nombre, m: PRODUCTOS[i].modelo || "", p: PRODUCTOS[i].precio == null ? "precio por cotización" : dinero(PRODUCTOS[i].precio * carrito[i]) })) };
+        ["nom", "tel", "mail"].forEach(id => $(id).classList.remove("mal"));
+        if (!ids.length) return ver("Tu carrito está vacío. Agrega productos primero.", false);
+        const malos = [];
+        if (d.nombre.length < 3) malos.push("nom");
+        if (d.tel.replace(/\D/g, "").length < 10) malos.push("tel");
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.mail)) malos.push("mail");
+        if (malos.length) { malos.forEach(id => $(id).classList.add("mal")); $(malos[0]).focus(); return ver("Completa tu nombre, teléfono (10 dígitos) y correo.", false); }
+        try { const u = Number(localStorage.getItem("ultimoPedido") || 0); if (Date.now() - u < 30000) return ver("Ya enviaste una solicitud hace un momento. Espera unos segundos.", false); } catch (_) {}
+        b.disabled = true; b.textContent = "Enviando…";
+        try {
+            const lista = d.items.map(i => `- ${i.c} x ${i.n}${i.m ? " [" + i.m + "] " : " "}(${i.p})`).join("\n");
+            await enviarAPI("Nueva cotización / pedido", d.nombre, d.mail, d.tel, "Productos:\n" + lista + (d.msg ? "\n\nComentarios: " + d.msg : ""));
+            try { localStorage.setItem("ultimoPedido", String(Date.now())); } catch (_) {}
+            carrito = {}; guardar(); pintarCarrito();
+            ver("¡Solicitud enviada correctamente! Nos pondremos en contacto contigo muy pronto.", true);
+        } catch (err) {
+            ver("No pudimos enviar tu solicitud. Usa los botones de WhatsApp o correo, o llámanos al 55 2215 0137.", false);
+        }
+        b.disabled = false; b.textContent = "Enviar cotización";
+    });
 })();

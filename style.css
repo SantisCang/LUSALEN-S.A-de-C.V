@@ -427,3 +427,7 @@ a.ct:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(20,90,140
 .cf-estado.err { background: #fdecee; color: #a02332; border: 1px solid #f0b3ba; }
 .mapa iframe { height: 380px; }
 @media (max-width: 800px) { .ct-layout { grid-template-columns: 1fr; } .cf-fila { grid-template-columns: 1fr; } .ct-form { padding: 20px 16px; } .mapa iframe { height: 280px; } }
+
+button.btn { border: 0; cursor: pointer; font: inherit; font-weight: 600; }
+button.btn:disabled { opacity: .6; cursor: wait; }
+#cot-estado { margin: 10px 0 0; }
