@@ -1,7 +1,7 @@
 // ====== CONFIGURA AQUÍ TUS DATOS ======
 const WHATSAPP  = "525522150137";   // Número con lada del país (52 = México)
 const CORREO    = "tavozick@gmail.com";
-const WEB3FORMS_KEY = "PEGA_AQUI_TU_CLAVE";   // Clave gratis de web3forms.com (te llega a tu correo)
+const WEB3FORMS_KEY = "bd93021b-196c-4870-a6b1-051480962800";   // Clave gratis de web3forms.com (te llega a tu correo)
 const MAPA_COORD = "19.4603444,-99.2137661";                  // Ubicación de LUSALEN
 const MAPA_LINK  = "https://maps.app.goo.gl/992vJwcLoeVKERMy5"; // Enlace de Google Maps
 const DIRECCION  = "Ingenieros Militares 70, Argentina Poniente, Miguel Hidalgo, 11230 Ciudad de México";
