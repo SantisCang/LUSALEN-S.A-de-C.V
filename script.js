@@ -3,7 +3,7 @@ const WHATSAPP  = "525522150137";   // Número con lada del país (52 = México)
 const CORREO    = "tavozick@gmail.com";
 const WEB3FORMS_KEY = "bd93021b-196c-4870-a6b1-051480962800";   // Clave gratis de web3forms.com (te llega a tu correo)
 const MAPA_COORD = "19.4603444,-99.2137661";                  // Ubicación de LUSALEN
-const MAPA_LINK  = "https://maps.app.goo.gl/992vJwcLoeVKERMy5"; // Enlace de Google Maps
+const MAPA_LINK  = "https://www.google.com/maps/place/Lusalen/@19.4603165,-99.213802,21z/data=!4m12!1m5!3m4!2zMTnCsDI3JzM3LjIiTiA5OcKwMTInNDkuNiJX!8m2!3d19.4603444!4d-99.2137661!3m5!1s0x85d2024240c6e0c7:0x4a32fb29d865454b!8m2!3d19.4603444!4d-99.2137661!16s%2Fg%2F1tzlz9jc?hl=es-419"; // Enlace de Google Maps
 const DIRECCION  = "Ingenieros Militares 70, Argentina Poniente, Miguel Hidalgo, 11230 Ciudad de México";
 // Contacto y cotizaciones se envían por Web3Forms a tu correo (ver LEEME.txt)
 
@@ -263,7 +263,7 @@ function actualizarEnlaces() {
 /* ---------- Contacto: mapa de Google Maps ---------- */
 function cargarMapa() {
     const f = $("mapa");
-    if (!f.src) f.src = `https://www.google.com/maps?q=${MAPA_COORD}&z=18&output=embed`;
+  if (!f.src) f.src = `https://www.google.com/maps?q=Lusalen&ll=${MAPA_COORD}&z=18&output=embed`;
     $("verMapa").href = MAPA_LINK;
 }
 
